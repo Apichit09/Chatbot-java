@@ -1,0 +1,100 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
+import java.util.Set;
+
+public class MyBot {
+    // สร้าง HashMap เพื่อเก็บความรู้ของ ChatBot
+    HashMap<String, String> knowledge = new HashMap<String, String>();
+    static String question;
+    int a = 1;
+
+    // Constructor สำหรับ MyBot
+    public MyBot() {
+        // กำหนดความรู้เบื้องต้นให้กับ ChatBot
+        knowledge.put("Hi", "Hello... Pleased to meet you!");
+        knowledge.put("Hello", "Hi yo");
+        knowledge.put("how are you?", "Great! And you?");
+        knowledge.put("what time is it", "Look at your watch!");
+
+        // อ่านความรู้จากไฟล์ Source.txt และเพิ่มเข้า HashMap
+        try (BufferedReader br = new BufferedReader(new FileReader("Source.txt"))) {
+            String sCurrentLine;
+            while ((sCurrentLine = br.readLine()) != null) {
+                String[] information = sCurrentLine.split("_");
+                String k = information[0];
+                String v = information[1];
+                knowledge.put(k, v);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // เมทอดตอบคำถามที่รับเข้ามา
+    public void answer1(String message) {
+        question = message;
+        answer(question);
+    }
+
+    // เมทอดตอบคำถามโดยค้นหาในความรู้ของ ChatBot
+    public void answer(String question) {
+        // ดึง key ทั้งหมดจาก HashMap
+        Set<String> keys = knowledge.keySet();
+
+        // ค้นหาคำตอบโดยเปรียบเทียบคำถามกับ key ใน HashMap
+        for (String key : keys) {
+            String lowerKey = key.toLowerCase();
+            String lowerQuestion = question.toLowerCase();
+
+            // หากเจอ key ที่ตรงกันในรูปแบบที่เท่ากัน ให้แสดงคำตอบ
+            if (lowerKey.equals(lowerQuestion)) {
+                String str = knowledge.get(key);
+                System.out.println("ChatBot : " + str);
+                return;
+            }
+        }
+
+        // ถ้าไม่เจอในรูปแบบที่เท่ากัน ให้ค้นหา key ที่มีส่วนคล้ายกัน
+        for (String key : keys) {
+            String lowerKey = key.toLowerCase();
+            String lowerQuestion = question.toLowerCase();
+
+            // หากคำถามมีส่วนคล้ายกับ key ใน HashMap ให้แสดงคำตอบ
+            if (lowerKey.contains(lowerQuestion)) {
+                String str = knowledge.get(key);
+                System.out.println("ChatBot : " + str);
+                return;
+            }
+        }
+
+        // ถ้าไม่พบคำตอบในความรู้ ให้เรียกเมทอด reply
+        reply(question);
+    }
+
+    // เมทอดตอบที่เรียกในกรณีที่ไม่พบคำตอบ
+    public void reply(String question) {
+        System.out.println("ChatBot: Sorry, I'm dumb! How should I reply?");
+        System.out.println("Type ' train chatbot ' and teach me.");
+    }
+
+    // เมทอดในการเทรน ChatBot โดยเพิ่มความรู้ใหม่
+    public void trainMe(String question, String ans) throws IOException {
+        knowledge.put(question, ans);
+        String s = "_";
+        String content = question + s + ans;
+
+        // เพิ่มความรู้ใหม่ลงในไฟล์ Source.txt
+        Path path = Paths.get("Source.txt");
+        Files.write(path, content.getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+
+        System.out.println("Thanks, I'll remember that");
+    }
+}

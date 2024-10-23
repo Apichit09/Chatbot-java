@@ -1,0 +1,52 @@
+import java.io.IOException;
+import java.util.Scanner;
+
+public class Chatbot {
+    public static void main(String[] args) {
+        // สร้าง Chatbot จากคลาส MyBot
+        MyBot myBot = new MyBot();
+
+        // ใช้ Scanner เพื่อรับข้อมูลจากผู้ใช้ 
+        Scanner scanner = new Scanner(System.in);
+
+        // แสดงข้อความต้อนรับ
+        System.out.println(" <<---------------------------(:: Chatbot ::)--------------------------->> ");
+        System.out.println("Chatbot : Hello! To train the chatbot, type ' train chatbot ' ");
+        System.out.println("If you wish to end the conversation, type ' exit '");
+
+        // ลูปรับข้อมูลจากผู้ใช้
+        while (true) {
+            // แสดงข้อความให้ผู้ใช้ป้อนข้อมูล
+            System.out.print("You : ");
+            String userInput = scanner.nextLine();
+
+            // ตรวจสอบคำที่ผู้ใช้ป้อน
+            if (userInput.equalsIgnoreCase("exit")) {
+                // ถ้าผู้ใช้ป้อน "exit" แสดงข้อความลาก่อนและจบลูป
+                System.out.println("Chatbot : Goodbye!");
+                System.out.println(" <<---------------------------(:: Chatbot ::)--------------------------->> ");
+                break;
+            } else if (userInput.equalsIgnoreCase("train chatbot")) {
+                // ถ้าผู้ใช้ป้อน "train me" ให้ใส่คำถามและคำตอบเพื่อเทรน Chatbot
+                System.out.print("Enter the question: ");
+                String trainQuestion = scanner.nextLine();
+
+                System.out.print("Enter the answer: ");
+                String trainAnswer = scanner.nextLine();
+
+                try {
+                    // เรียกเมทอด trainMe เพื่อทำการเทรน Chatbot
+                    myBot.trainMe(trainQuestion, trainAnswer);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // ถ้าไม่ใช่ "exit" หรือ "train me" ให้ Chatbot ตอบตามคำถาม
+                myBot.answer1(userInput);
+            }
+        }
+
+        // ปิด Scanner เมื่อเสร็จสิ้น
+        scanner.close();
+    }
+}
